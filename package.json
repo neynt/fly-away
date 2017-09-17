@@ -1,0 +1,19 @@
+{
+  "name": "fly-away",
+  "version": "1.0.0",
+  "description": "zoom across a generated 3d terrain!",
+  "main": "index.js",
+  "scripts": {
+    "build": "lsc -c -w ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neynt/fly-away.git"
+  },
+  "author": "",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/neynt/fly-away/issues"
+  },
+  "homepage": "https://github.com/neynt/fly-away#readme"
+}
