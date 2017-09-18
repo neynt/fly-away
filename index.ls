@@ -4,9 +4,9 @@ document.add-event-listener \DOMContentLoaded, ->
 
   # 3D scene
   cube = new THREE.Mesh \
-    (new THREE.Box-geometry 1, 1, 1),
-    (new THREE.Mesh-phong-material color: 0xff0000)
-  light = new THREE.Directional-light 0xffffff, 0.8
+    (new THREE.BoxGeometry 1, 1, 1),
+    (new THREE.MeshPhongMaterial color: 0xff0000)
+  light = new THREE.DirectionalLight 0xffffff, 0.5
     ..position.y = 5
     ..position.z = 10
   camera = new THREE.PerspectiveCamera 75, W / H, 0.1, 1000
@@ -14,8 +14,8 @@ document.add-event-listener \DOMContentLoaded, ->
   scene = new THREE.Scene!
     ..add cube
     ..add light
-    ..add new THREE.Ambient-light 0x404040
-  renderer = new THREE.WebGL-renderer!
+    ..add new THREE.AmbientLight 0x404040
+  renderer = new THREE.WebGLRenderer!
     ..set-size W, H
   document.body.append-child renderer.dom-element
 
