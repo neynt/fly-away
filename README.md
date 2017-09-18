@@ -7,7 +7,7 @@ zoom across a generated 3D terrain!
 LiveScript:
 
 ```
-npm install -g livescript
+npm install
 ```
 
 ## build
@@ -18,4 +18,4 @@ npm run build
 
 ## run
 
-Open index.html in your browser
+Open index.html in your browser.
