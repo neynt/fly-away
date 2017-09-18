@@ -4,7 +4,7 @@
   "description": "zoom across a generated 3d terrain!",
   "main": "index.js",
   "scripts": {
-    "build": "lsc -c -w ."
+    "build": "webpack --config webpack.config.js --watch"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/neynt/fly-away/issues"
   },
-  "homepage": "https://github.com/neynt/fly-away#readme"
+  "homepage": "https://github.com/neynt/fly-away#readme",
+  "devDependencies": {
+    "livescript-loader": "^0.1.6",
+    "webpack": "^3.6.0"
+  }
 }

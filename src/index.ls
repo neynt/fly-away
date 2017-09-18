@@ -1,3 +1,7 @@
+{ Terrain } = require './terrain.ls'
+t = new Terrain!
+console.log t.get-height!
+
 document.addEventListener \DOMContentLoaded, ->
   W = window.innerWidth
   H = window.innerHeight
