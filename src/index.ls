@@ -2,9 +2,14 @@
 t = new Terrain!
 console.log t.get-height!
 
+tree = require './tree.ls'
+
 document.addEventListener \DOMContentLoaded, ->
   W = window.innerWidth
   H = window.innerHeight
+
+  # Tree
+  tree-obj = tree.generate-tree tree.pine
 
   # 3D scene
   geometry = new THREE.PlaneGeometry 60, 60, 9, 9
@@ -15,9 +20,10 @@ document.addEventListener \DOMContentLoaded, ->
     ..position.y = 100
     ..position.z = 10
   camera = new THREE.PerspectiveCamera 75, W / H, 0.1, 1000
-    ..position.z = 50
+    ..position.z = 100
   scene = new THREE.Scene!
-    ..add plane
+    #    ..add plane
+    ..add tree-obj
     ..add light
     ..add new THREE.AmbientLight 0x404040
   renderer = new THREE.WebGLRenderer!
@@ -26,6 +32,7 @@ document.addEventListener \DOMContentLoaded, ->
 
   animate = ->
     request-animation-frame animate
+    tree-obj.rotation.y += 0.01
     renderer.render scene, camera
   animate!
 
