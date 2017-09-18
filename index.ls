@@ -1,37 +1,35 @@
-document.add-event-listener \DOMContentLoaded, ->
-  W = window.inner-width
-  H = window.inner-height
+document.addEventListener \DOMContentLoaded, ->
+  W = window.innerWidth
+  H = window.innerHeight
 
   # 3D scene
-  cube = new THREE.Mesh \
-    (new THREE.BoxGeometry 1, 1, 1),
+  geometry = new THREE.PlaneGeometry 60, 60, 9, 9
+  plane = new THREE.Mesh \
+    geometry,
     (new THREE.MeshPhongMaterial color: 0xff0000)
   light = new THREE.DirectionalLight 0xffffff, 0.5
-    ..position.y = 5
+    ..position.y = 100
     ..position.z = 10
   camera = new THREE.PerspectiveCamera 75, W / H, 0.1, 1000
-    ..position.z = 5
+    ..position.z = 50
   scene = new THREE.Scene!
-    ..add cube
+    ..add plane
     ..add light
     ..add new THREE.AmbientLight 0x404040
   renderer = new THREE.WebGLRenderer!
-    ..set-size W, H
-  document.body.append-child renderer.dom-element
+    ..setSize W, H
+  document.body.appendChild renderer.domElement
 
   animate = ->
     request-animation-frame animate
-    cube.rotation
-      ..x += 0.01
-      ..y += 0.01
     renderer.render scene, camera
   animate!
 
   # Resize handler
-  window.add-event-listener \resize, ->
+  window.addEventListener \resize, ->
     # Update W and H in upper scope
-    W := window.inner-width
-    H := window.inner-height
+    W := window.innerWidth
+    H := window.innerHeight
     camera.aspect = W / H
-    camera.update-projection-matrix!
-    renderer.set-size W, H
+    camera.updateProjectionMatrix!
+    renderer.setSize W, H
