@@ -1,20 +1,37 @@
 document.add-event-listener \DOMContentLoaded, ->
-  canvas = document.get-element-by-id 'main_canvas'
-  ctx = canvas.get-context '2d'
+  W = window.inner-width
+  H = window.inner-height
 
-  tick = 0
+  # 3D scene
+  cube = new THREE.Mesh \
+    (new THREE.Box-geometry 1, 1, 1),
+    (new THREE.Mesh-phong-material color: 0xff0000)
+  light = new THREE.Directional-light 0xffffff, 0.8
+    ..position.y = 5
+    ..position.z = 10
+  camera = new THREE.PerspectiveCamera 75, W / H, 0.1, 1000
+    ..position.z = 5
+  scene = new THREE.Scene!
+    ..add cube
+    ..add light
+    ..add new THREE.Ambient-light 0x404040
+  renderer = new THREE.WebGL-renderer!
+    ..set-size W, H
+  document.body.append-child renderer.dom-element
 
   animate = ->
-    ctx.fill-style = "rgb(#{tick % 256}, 0, 0)"
-    ctx.fill-rect 5, 5, canvas.width - 10, canvas.height - 10
-    tick += 1
-    window.request-animation-frame animate
+    request-animation-frame animate
+    cube.rotation
+      ..x += 0.01
+      ..y += 0.01
+    renderer.render scene, camera
   animate!
 
-  # make canvas fill whole page
-  on-resize = ->
-    canvas.width = window.inner-width
-    canvas.height = window.inner-height
-
-  window.add-event-listener 'resize', on-resize
-  on-resize!
+  # Resize handler
+  window.add-event-listener \resize, ->
+    # Update W and H in upper scope
+    W := window.inner-width
+    H := window.inner-height
+    camera.aspect = W / H
+    camera.update-projection-matrix!
+    renderer.set-size W, H
