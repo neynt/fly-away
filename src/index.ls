@@ -1,7 +1,5 @@
-{TerrainGen} = require './terrain-gen.ls'
+terrain = require './terrain.ls'
 tree = require './tree.ls'
-
-t = new TerrainGen!
 
 document.addEventListener \DOMContentLoaded, ->
   W = window.innerWidth
@@ -11,21 +9,7 @@ document.addEventListener \DOMContentLoaded, ->
 
   # Tree
   tree-obj = tree.generate-tree tree.pine
-
-  # 3D scene
-  SIZE = 200
-  geometry = new THREE.PlaneGeometry 100*SIZE, 100*SIZE, SIZE, SIZE
-  for i til geometry.vertices.length
-    x = i % (SIZE + 1)
-    y = Math.floor i / (SIZE + 1)
-    geometry.vertices[i].z = t.get-height x, y
-
-  material = new THREE.MeshPhysicalMaterial {
-    color: 0x994422
-  }
-
-  plane = new THREE.Mesh geometry, material
-    ..rotation.x = 3 * Math.PI / 2
+  plane = terrain.generate-terrain 0, 0
 
   light = new THREE.DirectionalLight 0xffffff, 0.8
     ..position.z = 1
