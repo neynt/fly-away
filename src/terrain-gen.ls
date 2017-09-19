@@ -4,8 +4,8 @@ CHUNK_SIZE = 256
 SEED = Date.now!
 
 # The buffer is split into CHUNK_SIZE×CHUNK_SIZE chunks.
-# The buffer is indexed by (buffer_x, buffer_y).
-# A chunk is indexed by (chunk_idx), where chunk_idx = chunk_x + chunk_y * CHUNK_SIZE.
+# The buffer is indexed by (buffer_x, buffer_z).
+# A chunk is indexed by (chunk_idx), where chunk_idx = chunk_x + chunk_z * CHUNK_SIZE.
 
 export class TerrainGen
   ->
@@ -13,26 +13,24 @@ export class TerrainGen
 
   # Returns the chunk at the specified buffer coordinate.
   # Creates it if it doesn't exist.
-  # buffer_x, buffer_y: Integer indices into the buffer.
-  get-chunk: (buffer_x, buffer_y) ->
-    X = buffer_x
-    Y = buffer_y
-    if not @buffer[X]
-      @buffer[X] = {}
-    if not @buffer[X][Y]
-      @buffer[X][Y] = new Float32Array CHUNK_SIZE * CHUNK_SIZE
+  # buffer_x, buffer_z: Integer indices into the buffer.
+  get-chunk: (buffer_x, buffer_z) ->
+    if not @buffer[buffer_x]
+      @buffer[buffer_x] = {}
+    if not @buffer[buffer_x][buffer_z]
+      @buffer[buffer_x][buffer_z] = new Float32Array CHUNK_SIZE * CHUNK_SIZE
         ..fill -1
-    @buffer[X][Y]
+    @buffer[buffer_x][buffer_z]
 
   # Public. Call this thing from outside.
-  # x, y: Integers.
-  get-height: (x, y) ->
+  # x, z: Integers.
+  get-y: (x, z) ->
     buffer_x = Math.floor x / CHUNK_SIZE
-    buffer_y = Math.floor y / CHUNK_SIZE
+    buffer_z = Math.floor z / CHUNK_SIZE
     chunk_x = x - buffer_x * CHUNK_SIZE
-    chunk_y = y - buffer_y * CHUNK_SIZE
-    chunk_idx = chunk_x + chunk_y * CHUNK_SIZE
-    chunk = @get-chunk buffer_x, buffer_y
+    chunk_z = z - buffer_z * CHUNK_SIZE
+    chunk_idx = chunk_x + chunk_z * CHUNK_SIZE
+    chunk = @get-chunk buffer_x, buffer_z
     if chunk[chunk_idx] < 0
-      chunk[chunk_idx] = perlin.pnoise2 x/100, y/100, 0.5, 8, SEED
-    chunk[chunk_idx] * 5000
+      chunk[chunk_idx] = perlin.pnoise2 x/64, z/64, 0.5, 8, SEED
+    chunk[chunk_idx] * 2000

@@ -1,5 +1,11 @@
-terrain = require './terrain.ls'
+{TerrainGen} = require './terrain-gen.ls'
+terrain-gen = new TerrainGen!
+{Terrain} = require './terrain.ls'
+terrain = new Terrain terrain-gen
 tree = require './tree.ls'
+
+console.log terrain-gen.get-y 0, 0
+console.log terrain-gen.get-y 0, 1
 
 document.addEventListener \DOMContentLoaded, ->
   W = window.innerWidth
@@ -9,10 +15,10 @@ document.addEventListener \DOMContentLoaded, ->
 
   # Tree
   tree-obj = tree.generate-tree tree.pine
-  plane = terrain.generate-terrain 0, 0
+  plane = terrain.at 0, 0
 
   light = new THREE.DirectionalLight 0xffffff, 0.8
-    ..position.z = 1
+    ..position.y = 1
 
   pointlight = new THREE.PointLight!
     ..position.y = 400000
@@ -24,7 +30,7 @@ document.addEventListener \DOMContentLoaded, ->
     ..add plane
     ..add tree-obj
     ..add light
-    ..add new THREE.AmbientLight 0x808080
+    ..add new THREE.AmbientLight 0x404040
     ..add pointlight
     ..background = new THREE.Color 0xC6E5F4
 
