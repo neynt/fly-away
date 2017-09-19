@@ -87,6 +87,7 @@ export pnoise = (x, persist, octaves, seed) ->
     frequency = Math.pow(2, i)
     amplitude = Math.pow(persist, i)
     total += inoise(x * frequency, i, seed) * amplitude
+  total
 
 export pnoise2 = (x, y, persist, octaves, seed) ->
   total = 0
@@ -94,6 +95,7 @@ export pnoise2 = (x, y, persist, octaves, seed) ->
     frequency = Math.pow(2, i)
     amplitude = Math.pow(persist, i)
     total += inoise2(x * frequency, y * frequency, i, seed) * amplitude
+  total
 
 export pnoise3 = (x, y, z, persist, octaves, seed) ->
   total = 0
@@ -101,3 +103,4 @@ export pnoise3 = (x, y, z, persist, octaves, seed) ->
     frequency = Math.pow(2, i)
     amplitude = Math.pow(persist, i)
     total += inoise3(x * frequency, y * frequency, z * frequency, i, seed) * amplitude
+  total
