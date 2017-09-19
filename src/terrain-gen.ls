@@ -7,7 +7,7 @@ SEED = Date.now!
 # The buffer is indexed by (buffer_x, buffer_y).
 # A chunk is indexed by (chunk_idx), where chunk_idx = chunk_x + chunk_y * CHUNK_SIZE.
 
-export class Terrain
+export class TerrainGen
   ->
     @buffer = {}
 
