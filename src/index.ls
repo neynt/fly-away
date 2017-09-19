@@ -14,41 +14,47 @@ document.addEventListener \DOMContentLoaded, ->
   tree-obj = tree.generate-tree tree.pine
 
   # 3D scene
-  SIZE = 100
-  geometry = new THREE.PlaneGeometry SIZE, SIZE, SIZE, SIZE
+  SIZE = 200
+  geometry = new THREE.PlaneGeometry 100*SIZE, 100*SIZE, SIZE, SIZE
   for i til geometry.vertices.length
-    x = i % SIZE
-    y = Math.floor i / SIZE
+    x = i % (SIZE + 1)
+    y = Math.floor i / (SIZE + 1)
     geometry.vertices[i].z = t.get-height x, y
 
-  material = new THREE.MeshPhongMaterial(
-    color: 0x994422,
-    wireframe: true)
+  material = new THREE.MeshPhysicalMaterial {
+    color: 0x994422
+  }
 
   plane = new THREE.Mesh geometry, material
+    ..rotation.x = 3 * Math.PI / 2
 
   light = new THREE.DirectionalLight 0xffffff, 0.8
-    ..position.z = 90
+    ..position.z = 1
 
-  camera = new THREE.PerspectiveCamera 75, W / H, 0.1, 1000
-    ..position.z = 100
+  pointlight = new THREE.PointLight!
+    ..position.y = 400000
+
+  camera = new THREE.PerspectiveCamera 45, W / H, 0.1, 1000000
+    ..position.y = 4000
 
   scene = new THREE.Scene!
     ..add plane
     ..add tree-obj
     ..add light
-    ..add new THREE.AmbientLight 0x404040
+    ..add new THREE.AmbientLight 0x808080
+    ..add pointlight
 
   renderer = new THREE.WebGLRenderer!
     ..setSize W, H
+
+  controls = new THREE.OrbitControls camera, document, renderer.domElement
 
   document.body.appendChild renderer.domElement
 
   animate = ->
     request-animation-frame animate
     tree-obj.rotation.y += 0.01
-    plane.rotation
-      ..x += dxrot / 1000
+    camera.rotation
       ..y += dyrot / 1000
     renderer.render scene, camera
   animate!
@@ -61,29 +67,3 @@ document.addEventListener \DOMContentLoaded, ->
     camera.aspect = W / H
     camera.updateProjectionMatrix!
     renderer.setSize W, H
-
-  # User input handlers
-  do ->
-    mouse-down-x = 0
-    mouse-down-y = 0
-    on-mouse-move = (event) ->
-      dx = event.clientX - mouse-down-x
-      dy = event.clientY - mouse-down-y
-      dxrot := dy * Math.abs(dy) / 1000
-      dyrot := dx * Math.abs(dx) / 1000
-      console.log "drag (#{dx}, #{dy})"
-    on-mouse-up = (event) ->
-      dxrot := 0
-      dyrot := 0
-      document.removeEventListener
-        .. \mousemove, on-mouse-move
-        .. \mouseup, on-mouse-up
-        .. \mouseout, on-mouse-up
-    document.addEventListener \mousedown, (event) ->
-      event.preventDefault!
-      mouse-down-x := event.clientX
-      mouse-down-y := event.clientY
-      document.addEventListener
-        .. \mousemove, on-mouse-move
-        .. \mouseup, on-mouse-up
-        .. \mouseout, on-mouse-up

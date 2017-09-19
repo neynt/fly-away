@@ -5,7 +5,7 @@ SEED = Date.now!
 
 # The buffer is split into CHUNK_SIZE×CHUNK_SIZE chunks.
 # The buffer is indexed by (buffer_x, buffer_y).
-# A chunk is indexed by (chunk_x, chunk_y).
+# A chunk is indexed by (chunk_idx), where chunk_idx = chunk_x + chunk_y * CHUNK_SIZE.
 
 export class Terrain
   ->
@@ -34,5 +34,5 @@ export class Terrain
     chunk_idx = chunk_x + chunk_y * CHUNK_SIZE
     chunk = @get-chunk buffer_x, buffer_y
     if chunk[chunk_idx] < 0
-      chunk[chunk_idx] = perlin.pnoise2 x/10, y/10, 0.4, 4, SEED
-    chunk[chunk_idx] * 20
+      chunk[chunk_idx] = perlin.pnoise2 x/100, y/100, 0.5, 4, SEED
+    chunk[chunk_idx] * 3000
