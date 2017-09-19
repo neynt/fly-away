@@ -1,8 +1,7 @@
-{ Terrain } = require './terrain.ls'
-t = new Terrain!
-console.log t.get-height 3, 5
-
+{TerrainGen} = require './terrain-gen.ls'
 tree = require './tree.ls'
+
+t = new TerrainGen!
 
 document.addEventListener \DOMContentLoaded, ->
   W = window.innerWidth
