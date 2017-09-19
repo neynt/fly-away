@@ -26,6 +26,7 @@ document.addEventListener \DOMContentLoaded, ->
     ..add light
     ..add new THREE.AmbientLight 0x808080
     ..add pointlight
+    ..background = new THREE.Color 0xC6E5F4
 
   renderer = new THREE.WebGLRenderer!
     ..setSize W, H

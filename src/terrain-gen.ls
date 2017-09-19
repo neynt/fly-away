@@ -34,5 +34,5 @@ export class TerrainGen
     chunk_idx = chunk_x + chunk_y * CHUNK_SIZE
     chunk = @get-chunk buffer_x, buffer_y
     if chunk[chunk_idx] < 0
-      chunk[chunk_idx] = perlin.pnoise2 x/30, y/30, 0.5, 4, SEED
-    chunk[chunk_idx] * 3000
+      chunk[chunk_idx] = perlin.pnoise2 x/100, y/100, 0.5, 8, SEED
+    chunk[chunk_idx] * 5000
