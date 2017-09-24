@@ -6,9 +6,12 @@ export class Terrain
 
   # Returns an object for the terrain at chunk X, Z.
   at: (X, Z) ->
+    offsetx = X * @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH
+    offsetz = Z * @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH
+
     chunk = new THREE.Object3D!
-      ..position.x = X * @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH
-      ..position.z = Z * @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH
+      ..position.x = offsetx
+      ..position.z = offsetz
 
     geometry = new THREE.PlaneGeometry \
       @terrain-gen.TILE_LENGTH * @terrain-gen.CHUNK_SIZE,
@@ -21,18 +24,20 @@ export class Terrain
       geometry.vertices[i]
         ..x = x
         ..z = z
-        ..y = @terrain-gen.get-y chunk.position.x + x, chunk.position.z + z
+        ..y = @terrain-gen.get-y offsetx + x, offsetz + z
     geometry.computeVertexNormals!
 
-    material = new THREE.MeshPhongMaterial {
+    material = new THREE.MeshLambertMaterial {
       color: 0x994422 / 0x11 * 0xa
     }
-    chunk.add new THREE.Mesh geometry, material
+    chunk.add (new THREE.Mesh geometry, material
+      ..castShadow = true
+      ..receiveShadow = true)
 
     for i til 100
       chunk.add (tree.generate-tree tree.pine
         ..position.x = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
         ..position.z = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
-        ..position.y = @terrain-gen.get-y ..position.x, ..position.z)
+        ..position.y = @terrain-gen.get-y offsetx + ..position.x, offsetz + ..position.z)
 
     chunk

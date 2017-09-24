@@ -15,11 +15,24 @@ document.addEventListener \DOMContentLoaded, ->
   plane3 = terrain.at 1, 0
   plane4 = terrain.at 1, 1
 
-  light = new THREE.DirectionalLight 0xffffff, 0.8
-    ..position.y = 1
+  lighttarget = new THREE.Object3D!
+    ..position.x = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH * 0.5
+    ..position.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH * 0.5
+    ..position.y = 0
 
-  pointlight = new THREE.PointLight!
-    ..position.y = 400000
+  light = new THREE.DirectionalLight 0xffffff, 0.8
+    ..position.x = 0
+    ..position.z = 0
+    ..position.y = 6000
+    ..castShadow = true
+    ..target = lighttarget
+  light.shadow.camera
+    ..far = 100000
+    ..left = -100000
+    ..right = 100000
+    ..bottom = -100000
+    ..top = 100000
+    ..updateProjectionMatrix!
 
   camera = new THREE.PerspectiveCamera 45, W / H, 0.1, 1000000
     # Centre of group of chunks
@@ -32,12 +45,14 @@ document.addEventListener \DOMContentLoaded, ->
     ..add plane2
     ..add plane3
     ..add plane4
+    ..add lighttarget
     ..add light
     ..add new THREE.AmbientLight 0x404040
-    ..add pointlight
     ..background = new THREE.Color 0xC6E5F4
 
   renderer = new THREE.WebGLRenderer!
+    ..shadowMap.enabled = true
+    ..shadowMap.type = THREE.PCFSoftShadowMap
     ..setSize W, H
 
   controls = new THREE.OrbitControls camera, document, renderer.domElement
