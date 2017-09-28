@@ -1,6 +1,6 @@
 window.perlin = perlin = require './perlin.ls'
 
-CHUNK_SIZE = 128 # number of tiles per chunk (along one side)
+CHUNK_SIZE = 16 # number of tiles per chunk (along one side)
 TILE_LENGTH = 128 # game units between cached points
 SCALE_FACTOR = 2 * 64 * 64 / TILE_LENGTH # number of tiles per perlin noise chunk (along one side)
 HEIGHT_SCALE = 4000

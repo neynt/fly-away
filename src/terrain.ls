@@ -35,9 +35,10 @@ export class Terrain
       ..receiveShadow = true)
 
     for i til 100
-      chunk.add (tree.generate-tree tree.pine
-        ..position.x = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
-        ..position.z = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
-        ..position.y = @terrain-gen.get-y offsetx + ..position.x, offsetz + ..position.z)
+      if Math.random! * Math.random! * 2000 > @terrain-gen.get-y offsetx, offsetz
+        chunk.add (tree.generate-tree tree.pine
+          ..position.x = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
+          ..position.z = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
+          ..position.y = @terrain-gen.get-y offsetx + ..position.x, offsetz + ..position.z)
 
     chunk

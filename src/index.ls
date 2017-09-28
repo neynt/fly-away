@@ -9,11 +9,10 @@ document.addEventListener \DOMContentLoaded, ->
   dxrot = 0
   dyrot = 0
 
-  # Tree
-  plane = terrain.at 0, 0
-  plane2 = terrain.at 0, 1
-  plane3 = terrain.at 1, 0
-  plane4 = terrain.at 1, 1
+  chunks_to_load = []
+  for i til 10
+    for j til 10
+      chunks_to_load.push([i, j])
 
   lighttarget = new THREE.Object3D!
     ..position.x = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH * 0.5
@@ -41,10 +40,6 @@ document.addEventListener \DOMContentLoaded, ->
     ..position.y = 4000
 
   scene = new THREE.Scene!
-    ..add plane
-    ..add plane2
-    ..add plane3
-    ..add plane4
     ..add lighttarget
     ..add light
     ..add new THREE.AmbientLight 0x404040
@@ -63,6 +58,11 @@ document.addEventListener \DOMContentLoaded, ->
 
   animate = ->
     request-animation-frame animate
+    # Load a chunk
+    if chunks_to_load.length > 0
+      if Math.random! < 0.1
+        c = chunks_to_load.shift!
+        scene.add terrain.at c[0], c[1]
     camera.rotation
       ..y += dyrot / 1000
     renderer.render scene, camera
