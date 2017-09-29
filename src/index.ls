@@ -3,23 +3,22 @@ terrain-gen = new TerrainGen!
 {Terrain} = require './terrain.ls'
 terrain = new Terrain terrain-gen
 
+const view-distance = 10000
+const chunk-length = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
+const chunk-view-distance = Math.ceil view-distance / chunk-length
+
 document.addEventListener \DOMContentLoaded, ->
   W = window.innerWidth
   H = window.innerHeight
   dxrot = 0
   dyrot = 0
 
-  chunks_to_load = []
-  for i til 10
-    for j til 10
-      chunks_to_load.push([i, j])
-
   lighttarget = new THREE.Object3D!
     ..position.x = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH * 0.5
     ..position.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH * 0.5
     ..position.y = 0
 
-  light = new THREE.DirectionalLight 0xffffff, 0.8
+  light = new THREE.DirectionalLight 0x999999, 0.8
     ..position.x = 0
     ..position.z = 0
     ..position.y = 6000
@@ -42,29 +41,81 @@ document.addEventListener \DOMContentLoaded, ->
   scene = new THREE.Scene!
     ..add lighttarget
     ..add light
-    ..add new THREE.AmbientLight 0x404040
-    ..background = new THREE.Color 0xC6E5F4
+#    ..add new THREE.AmbientLight 0x101010
+    ..background = new THREE.Color 0x111F2A
 
   renderer = new THREE.WebGLRenderer!
     ..shadowMap.enabled = true
     ..shadowMap.type = THREE.PCFSoftShadowMap
+    ..castShadow = true
     ..setSize W, H
 
-  controls = new THREE.OrbitControls camera, document, renderer.domElement
-    ..target.x = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
-    ..target.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
+  chunks-loaded = {}
+  is-chunk-loaded = (x, z) ->
+    if not chunks-loaded[x]
+      false
+    else
+      !!chunks-loaded[x][z]
+  mark-chunk-loaded = (x, z) ->
+    if not chunks-loaded[x]
+      chunks-loaded[x] = {}
+    chunks-loaded[x][z] = true
+  mark-chunk-unloaded = (x, z) ->
+    if chunks-loaded[x] and chunks-loaded[x][z]
+      delete chunks-loaded[x][z]
+  load-chunk = (x, z) ->
+    chunk = terrain.at x, z
+    scene.add chunk
+    mark-chunk-loaded x, z
+    # create an unloader
+    unloader = ->
+      my-x = Math.floor camera.position.x / chunk-length
+      my-z = Math.floor camera.position.z / chunk-length
+      if (my-x - x)^2 + (my-z - z)^2 > chunk-view-distance^2
+        scene.remove chunk
+        mark-chunk-unloaded x, z
+      else
+        window.setTimeout unloader, 10000
+    unloader!
+
+#  controls = new THREE.OrbitControls camera, document, renderer.domElement
+#    ..target.x = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
+#    ..target.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
 
   document.body.appendChild renderer.domElement
 
   animate = ->
     request-animation-frame animate
+
     # Load a chunk
-    if chunks_to_load.length > 0
-      if Math.random! < 0.1
-        c = chunks_to_load.shift!
-        scene.add terrain.at c[0], c[1]
-    camera.rotation
-      ..y += dyrot / 1000
+    my-x = Math.floor camera.position.x / chunk-length
+    my-z = Math.floor camera.position.z / chunk-length
+    (->
+      for d til chunk-view-distance
+        for dx from -d to d
+          if dx^2 + d^2 > chunk-view-distance^2
+            continue
+          if not is-chunk-loaded my-x + dx, my-z + d
+            load-chunk my-x + dx, my-z + d
+            return
+          if not is-chunk-loaded my-x + dx, my-z - d
+            load-chunk my-x + dx, my-z - d
+            return
+        for dz from -d to d
+          if dz^2 + d^2 > chunk-view-distance^2
+            continue
+          if not is-chunk-loaded my-x + d, my-z + dz
+            load-chunk my-x + d, my-z + dz
+            return
+          if not is-chunk-loaded my-x - d, my-z + dz
+            load-chunk my-x - d, my-z + dz
+            return
+    )()
+
+    # Move the camera
+    camera.position.z -= 10
+    camera.position.y = 400 + terrain-gen.get-y camera.position.x, camera.position.z
+
     renderer.render scene, camera
   animate!
 

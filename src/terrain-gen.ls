@@ -59,6 +59,6 @@ export class TerrainGen
 
       # Linear interpolation
       i1 = fracx * (v2 - v1) + v1
-      i2 = fracx * (v4 - v3) + v1
+      i2 = fracx * (v4 - v3) + v3
 
       fracz * (i2 - i1) + i1
