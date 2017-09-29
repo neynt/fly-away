@@ -3,7 +3,7 @@ terrain-gen = new TerrainGen!
 {Terrain} = require './terrain.ls'
 terrain = new Terrain terrain-gen
 
-const view-distance = 10000
+const view-distance = 12000
 const chunk-length = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
 const chunk-view-distance = Math.ceil view-distance / chunk-length
 
@@ -41,7 +41,8 @@ document.addEventListener \DOMContentLoaded, ->
   scene = new THREE.Scene!
     ..add lighttarget
     ..add light
-    ..background = new THREE.Color 0x111F2A
+    ..fog = new THREE.Fog 0x5C767D, 7000, 10000
+    ..background = new THREE.Color 0x5C767D #0x111F2A
 
   renderer = new THREE.WebGLRenderer!
     ..shadowMap.enabled = true

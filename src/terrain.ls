@@ -46,19 +46,13 @@ export class Terrain
         @terrain-gen.get-y(offsetx + targx, offsetz + targz + scan-range),
         @terrain-gen.get-y(offsetx + targx, offsetz + targz - scan-range)]
 
-      console.log 'XI'
       max-scan-difference = 0
       for scan-point in scan-points
         scan-difference = Math.abs(targy - scan-point)
-        console.log ' X'
-        console.log scan-difference
         if scan-difference > max-scan-difference
           max-scan-difference := scan-difference
-      console.log max-scan-difference
 
       if Math.random! * max-growable-scan-difference < max-growable-scan-difference - max-scan-difference
-        console.log 'TREE'
-        console.log max-growable-scan-difference - max-scan-difference
         chunk.add (tree.generate-tree tree.pine
           ..position.x = targx
           ..position.z = targz
