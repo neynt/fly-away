@@ -41,7 +41,6 @@ document.addEventListener \DOMContentLoaded, ->
   scene = new THREE.Scene!
     ..add lighttarget
     ..add light
-#    ..add new THREE.AmbientLight 0x101010
     ..background = new THREE.Color 0x111F2A
 
   renderer = new THREE.WebGLRenderer!
@@ -77,10 +76,6 @@ document.addEventListener \DOMContentLoaded, ->
       else
         window.setTimeout unloader, 10000
     unloader!
-
-#  controls = new THREE.OrbitControls camera, document, renderer.domElement
-#    ..target.x = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
-#    ..target.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
 
   document.body.appendChild renderer.domElement
 
