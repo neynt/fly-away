@@ -1,8 +1,73 @@
 tree = require './tree.ls'
 
+VIEW_DISTANCE = 12000
+
 export class Terrain
-  (terrain-gen) ->
+  (terrain-gen, scene) ->
     @terrain-gen = terrain-gen
+    @scene = scene
+    @chunks-loaded = {} # map of map of bool
+    @to-unload = []
+    @cx = 0
+    @cz = 0
+    @chunk-length = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH
+    @chunk-view-distance = Math.ceil VIEW_DISTANCE / @chunk-length
+    @chunk-unload-distance = 2 + Math.ceil VIEW_DISTANCE / @chunk-length
+
+  is-chunk-loaded: (X, Z) ->
+    if not @chunks-loaded[X]
+      false
+    else
+      !!@chunks-loaded[X][Z]
+  mark-chunk-loaded: (X, Z) ->
+    if not @chunks-loaded[X]
+      @chunks-loaded[X] = {}
+    @chunks-loaded[X][Z] = true
+  mark-chunk-unloaded: (X, Z) ->
+    if @chunks-loaded[X] and @chunks-loaded[X][Z]
+      delete @chunks-loaded[X][Z]
+  load-chunk: (X, Z) ->
+    chunk = @at X, Z
+    @scene.add chunk
+    @mark-chunk-loaded X, Z
+    # create an unloader
+    unloader = ~>
+      if (@cx - X)^2 + (@cz - Z)^2 > @chunk-unload-distance^2
+        @to-unload.push chunk
+        @mark-chunk-unloaded X, Z
+      else
+        window.setTimeout unloader, 10000
+    unloader!
+
+  # Does a load or an unload
+  do-work: (cx, cz) ->
+    @cx = cx
+    @cz = cz
+    (~>
+      for d to @chunk-view-distance
+        for dx from -d to d
+          if dx^2 + d^2 > @chunk-view-distance^2
+            continue
+          if not @is-chunk-loaded @cx + dx, @cz + d
+            @load-chunk @cx + dx, @cz + d
+            # Multi-level exit!
+            return
+          if not @is-chunk-loaded @cx + dx, @cz - d
+            @load-chunk @cx + dx, @cz - d
+            return
+        for dz from -d to d
+          if dz^2 + d^2 > @chunk-view-distance^2
+            continue
+          if not @is-chunk-loaded @cx + d, @cz + dz
+            @load-chunk @cx + d, @cz + dz
+            return
+          if not @is-chunk-loaded @cx - d, @cz + dz
+            @load-chunk @cx - d, @cz + dz
+            return
+      # Unload a chunk instead
+      if @to-unload.length > 0
+        @scene.remove @to-unload.shift!
+    )!
 
   # Returns an object for the terrain at chunk X, Z.
   at: (X, Z) ->
