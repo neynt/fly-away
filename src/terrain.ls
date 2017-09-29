@@ -34,11 +34,34 @@ export class Terrain
       ..castShadow = true
       ..receiveShadow = true)
 
-    for i til 10
-      if Math.random! * 4000 > @terrain-gen.get-y offsetx, offsetz
+    scan-range = 20
+    max-growable-scan-difference = 20
+    for i til 30
+      targx = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
+      targz = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
+
+      targy = @terrain-gen.get-y offsetx + targx, offsetz + targz
+      scan-points = [@terrain-gen.get-y(offsetx + targx + scan-range, offsetz + targz),
+        @terrain-gen.get-y(offsetx + targx - scan-range, offsetz + targz),
+        @terrain-gen.get-y(offsetx + targx, offsetz + targz + scan-range),
+        @terrain-gen.get-y(offsetx + targx, offsetz + targz - scan-range)]
+
+      console.log 'XI'
+      max-scan-difference = 0
+      for scan-point in scan-points
+        scan-difference = Math.abs(targy - scan-point)
+        console.log ' X'
+        console.log scan-difference
+        if scan-difference > max-scan-difference
+          max-scan-difference := scan-difference
+      console.log max-scan-difference
+
+      if Math.random! * max-growable-scan-difference < max-growable-scan-difference - max-scan-difference
+        console.log 'TREE'
+        console.log max-growable-scan-difference - max-scan-difference
         chunk.add (tree.generate-tree tree.pine
-          ..position.x = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
-          ..position.z = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
-          ..position.y = @terrain-gen.get-y offsetx + ..position.x, offsetz + ..position.z)
+          ..position.x = targx
+          ..position.z = targz
+          ..position.y = targy)
 
     chunk
