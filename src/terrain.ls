@@ -43,31 +43,29 @@ export class Terrain
   do-work: (cx, cz) ->
     @cx = cx
     @cz = cz
-    (~>
-      for d to @chunk-view-distance
-        for dx from -d to d
-          if dx^2 + d^2 > @chunk-view-distance^2
-            continue
-          if not @is-chunk-loaded @cx + dx, @cz + d
-            @load-chunk @cx + dx, @cz + d
-            # Multi-level exit!
-            return
-          if not @is-chunk-loaded @cx + dx, @cz - d
-            @load-chunk @cx + dx, @cz - d
-            return
-        for dz from -d to d
-          if dz^2 + d^2 > @chunk-view-distance^2
-            continue
-          if not @is-chunk-loaded @cx + d, @cz + dz
-            @load-chunk @cx + d, @cz + dz
-            return
-          if not @is-chunk-loaded @cx - d, @cz + dz
-            @load-chunk @cx - d, @cz + dz
-            return
-      # Unload a chunk instead
-      if @to-unload.length > 0
-        @scene.remove @to-unload.shift!
-    )!
+    for d to @chunk-view-distance
+      for dx from -d to d
+        if dx^2 + d^2 > @chunk-view-distance^2
+          continue
+        if not @is-chunk-loaded @cx + dx, @cz + d
+          @load-chunk @cx + dx, @cz + d
+          # Multi-level exit!
+          return
+        if not @is-chunk-loaded @cx + dx, @cz - d
+          @load-chunk @cx + dx, @cz - d
+          return
+      for dz from -d to d
+        if dz^2 + d^2 > @chunk-view-distance^2
+          continue
+        if not @is-chunk-loaded @cx + d, @cz + dz
+          @load-chunk @cx + d, @cz + dz
+          return
+        if not @is-chunk-loaded @cx - d, @cz + dz
+          @load-chunk @cx - d, @cz + dz
+          return
+    # Unload a chunk instead
+    if @to-unload.length > 0
+      @scene.remove @to-unload.shift!
 
   # Returns an object for the terrain at chunk X, Z.
   at: (X, Z) ->
