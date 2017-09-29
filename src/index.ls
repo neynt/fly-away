@@ -59,10 +59,17 @@ document.addEventListener \DOMContentLoaded, ->
     terrain.do-work cx, cz
 
     # Move the camera and light
+    cur-y = terrain-gen.get-y camera.position.x, camera.position.z
+    nxt-y = terrain-gen.get-y camera.position.x, camera.position.z - 1000
+    dy = cur-y - nxt-y
+
     light.position.z -= 20
     lighttarget.position.z -= 20
     camera.position.z -= 20
-    camera.position.y = 400 + terrain-gen.get-y camera.position.x, camera.position.z
+    camera.position.y = 400 + cur-y
+
+    ideal-rot-x = -0.5*(Math.atan2(dy, 1000))
+    camera.rotation.x = 0.98 * camera.rotation.x + 0.02 * ideal-rot-x
 
     renderer.render scene, camera
   animate!
