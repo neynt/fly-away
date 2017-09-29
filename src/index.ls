@@ -68,7 +68,7 @@ document.addEventListener \DOMContentLoaded, ->
     camera.position.z -= 20
     camera.position.y = 400 + cur-y
 
-    ideal-rot-x = -0.5*(Math.atan2(dy, 1000))
+    ideal-rot-x = -0.9*(Math.atan2(dy, 1000))
     camera.rotation.x = 0.98 * camera.rotation.x + 0.02 * ideal-rot-x
 
     renderer.render scene, camera
