@@ -7,6 +7,8 @@ tree1-trunk-material = 0
 tree1-leaf-geometry1 = 0
 tree1-leaf-geometry2 = 0
 tree1-leaf-geometry3 = 0
+tree1-leaf-geometry4 = 0
+tree1-leaf-geometry5 = 0
 tree1-leaf-material = 0
 
 
@@ -36,6 +38,12 @@ generate-pine-tree = ->
     tree1-leaf-geometry3 := new THREE.ConeGeometry leaf-radius - leaf-radius-shrink * 3,
       leaf-height,
       5 # segments
+    tree1-leaf-geometry4 := new THREE.ConeGeometry leaf-radius - leaf-radius-shrink * 4,
+      leaf-height,
+      5 # segments
+    tree1-leaf-geometry5 := new THREE.ConeGeometry leaf-radius - leaf-radius-shrink * 5,
+      leaf-height,
+      5 # segments
     tree1-leaf-material := new THREE.MeshPhongMaterial color: 0x556b2f
 
 
@@ -60,6 +68,22 @@ generate-pine-tree = ->
     ..position.y = trunk-height + leaf-height / 2 + (leaf-height - leaf-overlap) * 2
     ..rotation.y = 2 * Math.PI * Math.random!)
     ..castShadow = true
+
+  #30% chance of extra tall tree
+  if Math.random! * 100 < 30
+    tree.add (( new THREE.Mesh tree1-leaf-geometry4,
+      (tree1-leaf-material))
+      ..position.y = trunk-height + leaf-height / 2 + (leaf-height - leaf-overlap) * 3
+      ..rotation.y = 2 * Math.PI * Math.random!)
+      ..castShadow = true
+
+    #40% chance of extra tall tree being extra extra tall
+    if Math.random! * 100 < 40
+      tree.add (( new THREE.Mesh tree1-leaf-geometry5,
+        (tree1-leaf-material))
+        ..position.y = trunk-height + leaf-height / 2 + (leaf-height - leaf-overlap) * 4
+        ..rotation.y = 2 * Math.PI * Math.random!)
+        ..castShadow = true
 
   tree
 
