@@ -1,6 +1,7 @@
 {TerrainGen} = require './terrain-gen.ls'
 terrain-gen = new TerrainGen!
 {Terrain} = require './terrain.ls'
+{Pilot} = require './pilot.ls'
 
 document.addEventListener \DOMContentLoaded, ->
   W = window.innerWidth
@@ -47,6 +48,8 @@ document.addEventListener \DOMContentLoaded, ->
 
   terrain = new Terrain terrain-gen, scene
 
+  pilot = new Pilot terrain-gen, camera
+
   document.body.appendChild renderer.domElement
 
   animate = ->
@@ -65,11 +68,13 @@ document.addEventListener \DOMContentLoaded, ->
 
     light.position.z -= 20
     lighttarget.position.z -= 20
-    camera.position.z -= 20
-    camera.position.y = 400 + cur-y
+    #camera.position.z -= 20
+    #camera.position.y = 400 + cur-y
 
-    ideal-rot-x = -0.9*(Math.atan2(dy, 1000))
-    camera.rotation.x = 0.98 * camera.rotation.x + 0.02 * ideal-rot-x
+    #ideal-rot-x = -0.9*(Math.atan2(dy, 1000))
+    #camera.rotation.x = 0.98 * camera.rotation.x + 0.02 * ideal-rot-x
+
+    pilot.tick!
 
     renderer.render scene, camera
   animate!
