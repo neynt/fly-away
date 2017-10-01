@@ -14,7 +14,7 @@ document.addEventListener \DOMContentLoaded, ->
     ..position.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH * 0.5
     ..position.y = 0
 
-  light = new THREE.DirectionalLight 0x999999, 0.8
+  light = new THREE.DirectionalLight 0x222222, 0.8
     ..position.x = 0
     ..position.z = 0
     ..position.y = 6000
@@ -34,15 +34,15 @@ document.addEventListener \DOMContentLoaded, ->
     ..position.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
     ..position.y = 4000
 
-  spotlight = new THREE.SpotLight 0xffffff, 1, 7000, 0.5, 1, 1
+  spotlight = new THREE.SpotLight 0xffffff, 1, 10000, 0.5, 1, 1
   spotlight.target = camera
 
   scene = new THREE.Scene!
     ..add light-target
     ..add light
     ..add spotlight
-    ..fog = new THREE.Fog 0x5C767D, 7000, 10000
-    ..background = new THREE.Color 0x5C767D #0x111F2A
+    ..fog = new THREE.Fog 0x111F2A, 7000, 10000
+    ..background = new THREE.Color 0x111F2A
 
   renderer = new THREE.WebGLRenderer!
     ..shadowMap.enabled = true
