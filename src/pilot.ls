@@ -36,33 +36,49 @@ class Path
     x += @adj / (z*z + 1)^2 * ((z*z + 1) * (Math.cos z) - 2 * z * Math.sin z)
     x * XSCALE + @x0
 
+const MAX_UP_ACCEL = 0.05
+const MAX_DOWN_ACCEL = 0.15
+const BUFFER = 500
+
 export class Pilot
   (terrain-gen, camera) ->
     @terrain-gen = terrain-gen
     @camera = camera
 
     @path = new Path -@camera.position.z, 0, 0
+    # Use a simple path because the complex paths are sketchy right now.
+    @path = {
+      x: (z) -> 0
+      dx: (z) -> 0
+    }
+
+    @vy = 0
 
   tick: ->
+    y = @camera.position.y
+    z = -@camera.position.z # Z used for paths is positive
+
+    working-accel = MAX_UP_ACCEL
+    for test-accel from MAX_UP_ACCEL to -MAX_DOWN_ACCEL by -(MAX_DOWN_ACCEL + MAX_UP_ACCEL) / 4.0
+      if test-accel >= working-accel
+        continue
+      next-z = z + ZSPEED
+      next-y = y + @vy + 0.5 * test-accel
+      next-vy = @vy + test-accel
+      works = true
+      for j til 1000 by 50
+        loop-z = next-z + j * ZSPEED
+        if next-y + next-vy * j + 0.5 * MAX_UP_ACCEL * j * j <= BUFFER + @terrain-gen.get-y (@path.x loop-z), -loop-z
+          works = false
+          break
+      if works
+        working-accel = test-accel
+      else
+        break
+
     @camera.position.z -= ZSPEED
-    z = -@camera.position.z # our Z is positive
-    # Try a new path
-    new-path = new Path z, (@path.x z), @path.dx z
-    # Score path by how low it keeps the camera over the next 100 ticks
-    cur-score = 0
-    new-score = 0
-    for i til 1000
-      trial-z = z + i * ZSPEED
-      cur-score += @terrain-gen.get-y (@path.x trial-z), trial-z
-      new-score += @terrain-gen.get-y (new-path.x trial-z), trial-z
-    if new-score < cur-score
-      @path = new-path
-
     @camera.position.x = @path.x -@camera.position.z
-
-    cur-y = @terrain-gen.get-y @camera.position.x, @camera.position.z
-    nxt-y = @terrain-gen.get-y @camera.position.x, @camera.position.z - 1000
-    dy = cur-y - nxt-y
-    ideal-rot-x = -0.2*(Math.atan2(dy, 1000))
-    @camera.rotation.x = 0.98 * @camera.rotation.x + 0.02 * ideal-rot-x
-    @camera.position.y = 400 + cur-y
+    @camera.position.y += @vy + 0.5 * working-accel
+    @vy += working-accel
+    ideal-rot-x = 0.5 * Math.atan2 @vy, ZSPEED
+    @camera.rotation.x = 0.95 * @camera.rotation.x + 0.05 * ideal-rot-x
