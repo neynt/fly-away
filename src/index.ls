@@ -9,7 +9,7 @@ document.addEventListener \DOMContentLoaded, ->
   dxrot = 0
   dyrot = 0
 
-  lighttarget = new THREE.Object3D!
+  light-target = new THREE.Object3D!
     ..position.x = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH * 0.5
     ..position.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH * 0.5
     ..position.y = 0
@@ -19,7 +19,7 @@ document.addEventListener \DOMContentLoaded, ->
     ..position.z = 0
     ..position.y = 6000
     ..castShadow = true
-    ..target = lighttarget
+    ..target = light-target
   light.shadow.camera
     ..far = 100000
     ..left = -100000
@@ -34,9 +34,13 @@ document.addEventListener \DOMContentLoaded, ->
     ..position.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
     ..position.y = 4000
 
+  spotlight = new THREE.SpotLight 0xffffff, 1, 7000, 0.5, 1, 1
+  spotlight.target = camera
+
   scene = new THREE.Scene!
-    ..add lighttarget
+    ..add light-target
     ..add light
+    ..add spotlight
     ..fog = new THREE.Fog 0x5C767D, 7000, 10000
     ..background = new THREE.Color 0x5C767D #0x111F2A
 
@@ -63,8 +67,9 @@ document.addEventListener \DOMContentLoaded, ->
 
     # Move the camera and light
     light.position.z -= 20
-    lighttarget.position.z -= 20
+    light-target.position.z -= 20
     pilot.tick!
+    spotlight.position.addVectors camera.position, new THREE.Vector3 0, -10 * (Math.tan camera.rotation.x), 10
 
     renderer.render scene, camera
   animate!
