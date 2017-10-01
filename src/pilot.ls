@@ -1,7 +1,7 @@
 const ZSPEED = 20
-const ZCYCLE = 250.0 * ZSPEED
-const XSCALE = 1000
-const LAYERS = 10
+const ZCYCLE = 500.0 * ZSPEED
+const XSCALE = 2000
+const LAYERS = 1
 
 class Path
   (z0, x0, dx0) ->
@@ -11,6 +11,7 @@ class Path
       Math.random!
     @c = for i til LAYERS
       Math.random!
+    @b = [1]
 
     @z0 = z0
     @x0 = 0
@@ -46,17 +47,31 @@ export class Pilot
     @camera = camera
 
     @path = new Path -@camera.position.z, 0, 0
-    # Use a simple path because the complex paths are sketchy right now.
-    @path = {
-      x: (z) -> 0
-      dx: (z) -> 0
-    }
 
     @vy = 0
 
+  can-follow-path: (z, y, vy, path) ->
+    works = true
+    for j til 1000 by 50
+      loop-z = z + j * ZSPEED
+      if y + vy * j + 0.5 * MAX_UP_ACCEL * j * j <= BUFFER + @terrain-gen.get-y (path.x loop-z), -loop-z
+        return false
+    return true
+
   tick: ->
-    y = @camera.position.y
     z = -@camera.position.z # Z used for paths is positive
+    y = @camera.position.y
+
+    new-path = new Path z, (@path.x z), @path.dx z
+    # Score path by how low it keeps the camera over the next 100 ticks
+    cur-score = 0
+    new-score = 0
+    for i til 1000
+      trial-z = z + i * ZSPEED
+      cur-score = Math.max cur-score, @terrain-gen.get-y (@path.x trial-z), trial-z
+      new-score = Math.max new-score, @terrain-gen.get-y (new-path.x trial-z), trial-z
+    if new-score < cur-score and @can-follow-path z, y, @vy, new-path
+      @path = new-path
 
     working-accel = MAX_UP_ACCEL
     for test-accel from MAX_UP_ACCEL to -MAX_DOWN_ACCEL by -(MAX_DOWN_ACCEL + MAX_UP_ACCEL) / 4.0
@@ -65,13 +80,7 @@ export class Pilot
       next-z = z + ZSPEED
       next-y = y + @vy + 0.5 * test-accel
       next-vy = @vy + test-accel
-      works = true
-      for j til 1000 by 50
-        loop-z = next-z + j * ZSPEED
-        if next-y + next-vy * j + 0.5 * MAX_UP_ACCEL * j * j <= BUFFER + @terrain-gen.get-y (@path.x loop-z), -loop-z
-          works = false
-          break
-      if works
+      if @can-follow-path next-z, next-y, next-vy, @path
         working-accel = test-accel
       else
         break
