@@ -3,6 +3,13 @@ terrain-gen = new TerrainGen!
 {Terrain} = require './terrain.ls'
 {Pilot} = require './pilot'
 
+light = null
+spotlight = null
+fog = null
+scene = null
+edge-mode = false
+
+
 document.addEventListener \DOMContentLoaded, ->
   W = window.innerWidth
   H = window.innerHeight
@@ -14,7 +21,7 @@ document.addEventListener \DOMContentLoaded, ->
     ..position.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH * 0.5
     ..position.y = 0
 
-  light = new THREE.DirectionalLight 0x999999, 0.8
+  light := new THREE.DirectionalLight 0x999999, 0.8
     ..position.x = 0
     ..position.z = 0
     ..position.y = 6000
@@ -34,14 +41,16 @@ document.addEventListener \DOMContentLoaded, ->
     ..position.z = terrain-gen.CHUNK_SIZE * terrain-gen.TILE_LENGTH
     ..position.y = 4000
 
-  spotlight = new THREE.SpotLight 0xffffff, 1, 7000, 0.5, 1, 1
+  spotlight := new THREE.SpotLight 0xffffff, 1, 7000, 0.5, 1, 1
   spotlight.target = camera
 
-  scene = new THREE.Scene!
+  fog := new THREE.Fog 0x5C767D, 7000, 10000
+
+  scene := new THREE.Scene!
     ..add light-target
     ..add light
     ..add spotlight
-    ..fog = new THREE.Fog 0x5C767D, 7000, 10000
+    ..fog = fog
     ..background = new THREE.Color 0x5C767D #0x111F2A
 
   renderer = new THREE.WebGLRenderer!
@@ -82,3 +91,20 @@ document.addEventListener \DOMContentLoaded, ->
     camera.aspect = W / H
     camera.updateProjectionMatrix!
     renderer.setSize W, H
+
+document.addEventListener \keydown, ->
+  if event.keyCode == 78
+    if edge-mode == false
+      console.log "Edge on."
+      edge-mode := true
+      light.color := new THREE.Color 0x222222 
+      spotlight.distance := 7000
+      fog.color := new THREE.Color 0x111F2A
+      scene.background := new THREE.Color 0x111F2A
+    else
+      console.log "Edge off."
+      edge-mode := false
+      light.color := new THREE.Color 0x999999
+      spotlight.distance := 10000
+      fog.color := new THREE.Color 0x5C767D
+      scene.background := new THREE.Color 0x5C767D
