@@ -97,7 +97,8 @@ document.addEventListener \keydown, ->
     if edge-mode == false
       console.log "Edge on."
       edge-mode := true
-      light.color := new THREE.Color 0x222222 
+      light.color := new THREE.Color 0x111111
+      light.intensity := 0.2
       spotlight.distance := 7000
       fog.color := new THREE.Color 0x111F2A
       scene.background := new THREE.Color 0x111F2A
@@ -105,6 +106,7 @@ document.addEventListener \keydown, ->
       console.log "Edge off."
       edge-mode := false
       light.color := new THREE.Color 0x999999
+      light.intensity := 0.8
       spotlight.distance := 10000
       fog.color := new THREE.Color 0x5C767D
       scene.background := new THREE.Color 0x5C767D
