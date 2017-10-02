@@ -87,6 +87,8 @@ export class Terrain
     canvas.height = (@terrain-gen.CHUNK_SIZE + 1)
     ctx = canvas.getContext '2d'
 
+    scan-range = 20
+    max-growable-scan-difference = 20
     for i til geometry.vertices.length
       r = i % (@terrain-gen.CHUNK_SIZE + 1)
       c = Math.floor ((i + 0.5) / (@terrain-gen.CHUNK_SIZE + 1))
@@ -98,16 +100,32 @@ export class Terrain
         ..z = z
         ..y = y
 
-      rel-height = y / @terrain-gen.HEIGHT_SCALE
-      color = "rgba(0, 0, 0, 1.0)"
-      if rel-height > 0.3
-        color := "rgba(180, 142, 132, 1.0)"
-      else if rel-height > -0.4
-        color := "rgba(0, 128, 32, 1.0)"
-        if Math.random! < 0.4
-          color := "rgba(0, 192, 48, 1.0)"
+      scan-points = [@terrain-gen.get-y(offsetx + x + scan-range, offsetz + z),
+        @terrain-gen.get-y(offsetx + x - scan-range, offsetz + z),
+        @terrain-gen.get-y(offsetx + x, offsetz + z + scan-range),
+        @terrain-gen.get-y(offsetx + x, offsetz + z - scan-range)]
+
+      max-scan-difference = 0
+      for scan-point in scan-points
+        scan-difference = Math.abs(y - scan-point)
+        if scan-difference > max-scan-difference
+          max-scan-difference := scan-difference
+
+      max-green = 192
+      min-green = 96 / 2
+      red = 32
+      green = 0
+      blue = 0
+      if max-scan-difference < max-growable-scan-difference
+        slopiness = Math.abs(max-growable-scan-difference - max-scan-difference) / max-growable-scan-difference
+        green := (max-green - min-green) * slopiness * 2 + min-green
+        green := Math.round(green)
       else
-        color := "rgba(0, 96, 32, 1.0)"
+        red := 180
+        green := 142
+        blue := 132
+      color = "rgba(#{red}, #{green}, #{blue}, 1.0)"
+
       ctx.fillStyle = color
       ctx.fillRect r, c, 1, 1
 
@@ -123,8 +141,7 @@ export class Terrain
       ..castShadow = true
       ..receiveShadow = true)
 
-    scan-range = 20
-    max-growable-scan-difference = 20
+
     for i til 30
       targx = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
       targz = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
