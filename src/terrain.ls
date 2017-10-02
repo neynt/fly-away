@@ -81,17 +81,43 @@ export class Terrain
       @terrain-gen.TILE_LENGTH * @terrain-gen.CHUNK_SIZE,
       @terrain-gen.CHUNK_SIZE,
       @terrain-gen.CHUNK_SIZE
+
+    canvas = document.createElement 'canvas'
+    canvas.width = (@terrain-gen.CHUNK_SIZE + 1)
+    canvas.height = (@terrain-gen.CHUNK_SIZE + 1)
+    ctx = canvas.getContext '2d'
+
     for i til geometry.vertices.length
-      x = @terrain-gen.TILE_LENGTH * (i % (@terrain-gen.CHUNK_SIZE + 1))
-      z = @terrain-gen.TILE_LENGTH * Math.floor i / (@terrain-gen.CHUNK_SIZE + 1)
+      r = i % (@terrain-gen.CHUNK_SIZE + 1)
+      c = Math.floor ((i + 0.5) / (@terrain-gen.CHUNK_SIZE + 1))
+      x = @terrain-gen.TILE_LENGTH * r
+      z = @terrain-gen.TILE_LENGTH * c
+      y = @terrain-gen.get-y offsetx + x, offsetz + z
       geometry.vertices[i]
         ..x = x
         ..z = z
-        ..y = @terrain-gen.get-y offsetx + x, offsetz + z
+        ..y = y
+
+      rel-height = y / @terrain-gen.HEIGHT_SCALE
+      color = "rgba(0, 0, 0, 1.0)"
+      if rel-height > 0.3
+        color := "rgba(180, 142, 132, 1.0)"
+      else if rel-height > -0.4
+        color := "rgba(0, 128, 32, 1.0)"
+        if Math.random! < 0.4
+          color := "rgba(0, 192, 48, 1.0)"
+      else
+        color := "rgba(0, 96, 32, 1.0)"
+      ctx.fillStyle = color
+      ctx.fillRect r, c, 1, 1
+
     geometry.computeVertexNormals!
 
+    texture = new THREE.CanvasTexture canvas
+
     material = new THREE.MeshLambertMaterial {
-      color: 0x994422 / 0x11 * 0xa
+      color: 0xffffff
+      map: texture
     }
     chunk.add (new THREE.Mesh geometry, material
       ..castShadow = true

@@ -9,6 +9,7 @@ fog = null
 scene = null
 edge-mode = false
 
+bgcolor = 0x5c767d
 
 document.addEventListener \DOMContentLoaded, ->
   W = window.innerWidth
@@ -44,14 +45,14 @@ document.addEventListener \DOMContentLoaded, ->
   spotlight := new THREE.SpotLight 0xffffff, 1, 7000, 0.5, 1, 1
   spotlight.target = camera
 
-  fog := new THREE.Fog 0x5C767D, 7000, 10000
+  fog := new THREE.Fog bgcolor, 7000, 10000
 
   scene := new THREE.Scene!
     ..add light-target
     ..add light
     ..add spotlight
     ..fog = fog
-    ..background = new THREE.Color 0x5C767D #0x111F2A
+    ..background = new THREE.Color bgcolor
 
   renderer = new THREE.WebGLRenderer!
     ..shadowMap.enabled = true
@@ -108,5 +109,5 @@ document.addEventListener \keydown, ->
       light.color := new THREE.Color 0x999999
       light.intensity := 0.8
       spotlight.distance := 10000
-      fog.color := new THREE.Color 0x5C767D
-      scene.background := new THREE.Color 0x5C767D
+      fog.color := new THREE.Color bgcolor
+      scene.background := new THREE.Color bgcolor

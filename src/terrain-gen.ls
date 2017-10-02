@@ -16,6 +16,7 @@ export class TerrainGen
 
   TILE_LENGTH: TILE_LENGTH
   CHUNK_SIZE: CHUNK_SIZE
+  HEIGHT_SCALE: HEIGHT_SCALE
 
   # Returns the chunk at the specified buffer coordinate.
   # Creates it if it doesn't exist.
