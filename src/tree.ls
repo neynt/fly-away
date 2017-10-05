@@ -7,26 +7,24 @@ generate-pine-tree = do ->
   leaf-radius = 125
   leaf-radius-shrink = 15
 
-  tree1-trunk-geometry = new THREE.CylinderGeometry trunk-top-radius,
-    trunk-bot-radius,
-    trunk-height * 4,
-    5 # segments
+  tree1-trunk-geometry = new THREE.BufferGeometry!
+    ..fromGeometry new THREE.CylinderGeometry trunk-top-radius,
+      trunk-bot-radius,
+      trunk-height * 4,
+      5 # segments
   tree1-trunk-material = new THREE.MeshPhongMaterial color: 0x8b4513
-  tree1-leaf-geometry1 = new THREE.ConeGeometry leaf-radius - leaf-radius-shrink,
-    leaf-height,
-    5 # segments
-  tree1-leaf-geometry2 = new THREE.ConeGeometry leaf-radius - leaf-radius-shrink * 2,
-    leaf-height,
-    5 # segments
-  tree1-leaf-geometry3 = new THREE.ConeGeometry leaf-radius - leaf-radius-shrink * 3,
-    leaf-height,
-    5 # segments
-  tree1-leaf-geometry4 = new THREE.ConeGeometry leaf-radius - leaf-radius-shrink * 4,
-    leaf-height,
-    5 # segments
-  tree1-leaf-geometry5 = new THREE.ConeGeometry leaf-radius - leaf-radius-shrink * 5,
-    leaf-height,
-    5 # segments
+
+  make-leaf-geometry = (shrinkage) ->
+    new THREE.BufferGeometry!
+      ..fromGeometry new THREE.ConeGeometry leaf-radius - leaf-radius-shrink * shrinkage,
+        leaf-height,
+        5 # segments
+  tree1-leaf-geometry1 = make-leaf-geometry 1
+  tree1-leaf-geometry2 = make-leaf-geometry 2
+  tree1-leaf-geometry3 = make-leaf-geometry 3
+  tree1-leaf-geometry4 = make-leaf-geometry 4
+  tree1-leaf-geometry5 = make-leaf-geometry 5
+
   tree1-leaf-material = new THREE.MeshPhongMaterial color: 0x556b2f
 
   ->
