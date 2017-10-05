@@ -108,6 +108,9 @@ export class Terrain
         ..y = y
     geometry.computeVertexNormals!
 
+    buffer-geometry = new THREE.BufferGeometry!
+      ..fromGeometry geometry
+
     # Draw texture
     TEX_SIZE = 8
     canvas = document.createElement 'canvas'
@@ -149,7 +152,7 @@ export class Terrain
       color: 0xffffff
       map: texture
     }
-    chunk.add (new THREE.Mesh geometry, material
+    chunk.add (new THREE.Mesh buffer-geometry, material
       ..castShadow = true
       ..receiveShadow = true)
 
