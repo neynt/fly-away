@@ -45,7 +45,7 @@ export class Terrain
     @cz = cz
     for d to @chunk-view-distance
       for dx from -d to d
-        if dx^2 + d^2 > @chunk-view-distance^2
+        if dx*dx + d*d > @chunk-view-distance*@chunk-view-distance
           continue
         if not @is-chunk-loaded @cx + dx, @cz + d
           @load-chunk @cx + dx, @cz + d
@@ -55,7 +55,7 @@ export class Terrain
           @load-chunk @cx + dx, @cz - d
           return
       for dz from -d to d
-        if dz^2 + d^2 > @chunk-view-distance^2
+        if dz*dz + d*d > @chunk-view-distance*@chunk-view-distance
           continue
         if not @is-chunk-loaded @cx + d, @cz + dz
           @load-chunk @cx + d, @cz + dz
@@ -67,6 +67,17 @@ export class Terrain
     if @to-unload.length > 0
       @scene.remove @to-unload.shift!
 
+
+  # Returns approximate steepest slope at (x, z).
+  scan-range = 20
+  gradient: (x, y, z) ->
+    Math.max \
+      Math.abs(y - @terrain-gen.get-y(x + scan-range, z)),
+      Math.abs(y - @terrain-gen.get-y(x - scan-range, z)),
+      Math.abs(y - @terrain-gen.get-y(x, z + scan-range)),
+      Math.abs(y - @terrain-gen.get-y(x, z - scan-range))
+
+  max-growable-gradient = 20
   # Returns an object for the terrain at chunk X, Z.
   at: (X, Z) ->
     offsetx = X * @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH
@@ -87,37 +98,26 @@ export class Terrain
     canvas.height = (@terrain-gen.CHUNK_SIZE + 1)
     ctx = canvas.getContext '2d'
 
-    scan-range = 20
-    max-growable-scan-difference = 20
     for i til geometry.vertices.length
       r = i % (@terrain-gen.CHUNK_SIZE + 1)
       c = Math.floor ((i + 0.5) / (@terrain-gen.CHUNK_SIZE + 1))
-      x = @terrain-gen.TILE_LENGTH * r
-      z = @terrain-gen.TILE_LENGTH * c
-      y = @terrain-gen.get-y offsetx + x, offsetz + z
+      relative-x = @terrain-gen.TILE_LENGTH * r
+      relative-z = @terrain-gen.TILE_LENGTH * c
+      x = offsetx + relative-x
+      z = offsetz + relative-z
+      y = @terrain-gen.get-y x, z
       geometry.vertices[i]
-        ..x = x
-        ..z = z
+        ..x = relative-x
+        ..z = relative-z
         ..y = y
-
-      scan-points = [@terrain-gen.get-y(offsetx + x + scan-range, offsetz + z),
-        @terrain-gen.get-y(offsetx + x - scan-range, offsetz + z),
-        @terrain-gen.get-y(offsetx + x, offsetz + z + scan-range),
-        @terrain-gen.get-y(offsetx + x, offsetz + z - scan-range)]
-
-      max-scan-difference = 0
-      for scan-point in scan-points
-        scan-difference = Math.abs(y - scan-point)
-        if scan-difference > max-scan-difference
-          max-scan-difference := scan-difference
-
-      max-green = 192
+      max-green = 170
       min-green = 96 / 2
-      red = 32
+      red = 48
       green = 0
-      blue = 0
-      if max-scan-difference < max-growable-scan-difference
-        slopiness = Math.abs(max-growable-scan-difference - max-scan-difference) / max-growable-scan-difference
+      blue = 16
+      gradient = @gradient x, y, z
+      if gradient < max-growable-gradient
+        slopiness = Math.abs(max-growable-gradient - gradient) / max-growable-gradient
         green := (max-green - min-green) * slopiness * 2 + min-green
         green := Math.round(green)
       else
@@ -141,27 +141,16 @@ export class Terrain
       ..castShadow = true
       ..receiveShadow = true)
 
-
     for i til 30
-      targx = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
-      targz = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
-
-      targy = @terrain-gen.get-y offsetx + targx, offsetz + targz
-      scan-points = [@terrain-gen.get-y(offsetx + targx + scan-range, offsetz + targz),
-        @terrain-gen.get-y(offsetx + targx - scan-range, offsetz + targz),
-        @terrain-gen.get-y(offsetx + targx, offsetz + targz + scan-range),
-        @terrain-gen.get-y(offsetx + targx, offsetz + targz - scan-range)]
-
-      max-scan-difference = 0
-      for scan-point in scan-points
-        scan-difference = Math.abs(targy - scan-point)
-        if scan-difference > max-scan-difference
-          max-scan-difference := scan-difference
-
-      if Math.random! * max-growable-scan-difference < max-growable-scan-difference - max-scan-difference
+      relative-targx = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
+      relative-targz = @terrain-gen.CHUNK_SIZE * @terrain-gen.TILE_LENGTH * Math.random!
+      targx = offsetx + relative-targx
+      targz = offsetz + relative-targz
+      targy = @terrain-gen.get-y targx, targz
+      if Math.random! * max-growable-gradient < max-growable-gradient - @gradient(targx, targy, targz)
         chunk.add (tree.generate-tree tree.pine
-          ..position.x = targx
-          ..position.z = targz
+          ..position.x = relative-targx
+          ..position.z = relative-targz
           ..position.y = targy)
 
     chunk

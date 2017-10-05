@@ -66,6 +66,7 @@ document.addEventListener \DOMContentLoaded, ->
 
   document.body.appendChild renderer.domElement
 
+  frame-count = 0
   animate = ->
     request-animation-frame animate
 
@@ -82,6 +83,7 @@ document.addEventListener \DOMContentLoaded, ->
     spotlight.position.addVectors camera.position, new THREE.Vector3 0, -10 * (Math.tan camera.rotation.x), 10
 
     renderer.render scene, camera
+    frame-count += 1
   animate!
 
   # Resize handler

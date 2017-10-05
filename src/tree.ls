@@ -1,6 +1,3 @@
-# TODO: create global meshes for each type of tree, select from meshes
-# since creating new meshes for each tree consumes too many resources
-
 tree1-generated-materials = false
 tree1-trunk-geometry = 0
 tree1-trunk-material = 0
@@ -10,7 +7,6 @@ tree1-leaf-geometry3 = 0
 tree1-leaf-geometry4 = 0
 tree1-leaf-geometry5 = 0
 tree1-leaf-material = 0
-
 
 generate-pine-tree = ->
   trunk-height = 40
@@ -89,8 +85,10 @@ generate-pine-tree = ->
 
 export pine = "pine"
 
-pine-tree = generate-pine-tree!
+# Use a pool of 256 pine trees
+pine-trees = for i til 256
+  generate-pine-tree!
 
 export generate-tree = (type) ->
-  if type == pine
-    generate-pine-tree!
+  if type === pine
+    pine-trees[Math.floor(Math.random! * pine-trees.length)].clone!
