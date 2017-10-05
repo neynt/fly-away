@@ -93,11 +93,7 @@ export class Terrain
       @terrain-gen.CHUNK_SIZE,
       @terrain-gen.CHUNK_SIZE
 
-    canvas = document.createElement 'canvas'
-    canvas.width = (@terrain-gen.CHUNK_SIZE + 1)
-    canvas.height = (@terrain-gen.CHUNK_SIZE + 1)
-    ctx = canvas.getContext '2d'
-
+    # Compute geometry
     for i til geometry.vertices.length
       r = i % (@terrain-gen.CHUNK_SIZE + 1)
       c = Math.floor ((i + 0.5) / (@terrain-gen.CHUNK_SIZE + 1))
@@ -110,28 +106,44 @@ export class Terrain
         ..x = relative-x
         ..z = relative-z
         ..y = y
-      max-green = 170
-      min-green = 96 / 2
-      red = 48
-      green = 0
-      blue = 16
-      gradient = @gradient x, y, z
-      if gradient < max-growable-gradient
-        slopiness = Math.abs(max-growable-gradient - gradient) / max-growable-gradient
-        green := (max-green - min-green) * slopiness * 2 + min-green
-        green := Math.round(green)
-      else
-        red := 180
-        green := 142
-        blue := 132
-      color = "rgba(#{red}, #{green}, #{blue}, 1.0)"
-
-      ctx.fillStyle = color
-      ctx.fillRect r, c, 1, 1
-
     geometry.computeVertexNormals!
 
+    # Draw texture
+    TEX_SIZE = 8
+    canvas = document.createElement 'canvas'
+    canvas.width = TEX_SIZE  # TODO: Move these magic numbers somewhere
+    canvas.height = TEX_SIZE
+    ctx = canvas.getContext '2d'
+    for r til TEX_SIZE
+      for c til TEX_SIZE
+        rel-x = r * @terrain-gen.TILE_LENGTH * @terrain-gen.CHUNK_SIZE / (TEX_SIZE - 1)
+        rel-z = c * @terrain-gen.TILE_LENGTH * @terrain-gen.CHUNK_SIZE / (TEX_SIZE - 1)
+        x = offsetx + rel-x
+        z = offsetz + rel-z
+        y = @terrain-gen.get-y x, z
+        max-green = 170
+        min-green = 48
+        red = 48
+        green = 0
+        blue = 16
+        gradient = @gradient x, y, z
+        if gradient > max-growable-gradient
+          red := 180 + 10 * Math.random!
+          green := 142 + 5 * Math.random!
+          blue := 132 + 20 * Math.random!
+        else if y > 1000
+          red := 255
+          green := 255
+          blue := 255
+        else
+          slopiness = Math.abs(max-growable-gradient - gradient) / max-growable-gradient
+          green := (max-green - min-green) * slopiness * 2 + min-green
+          green := Math.round(green)
+        color = "rgba(#{Math.round(red)}, #{Math.round(green)}, #{Math.round(blue)}, 1.0)"
+        ctx.fillStyle = color
+        ctx.fillRect r, c, 1, 1
     texture = new THREE.CanvasTexture canvas
+      #..magFilter = THREE.NearestFilter  # minecraft look
 
     material = new THREE.MeshLambertMaterial {
       color: 0xffffff
