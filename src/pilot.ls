@@ -50,12 +50,17 @@ export class Pilot
 
     @vy = 0
 
+  vz-of-y: (y) ->
+    Math.max 6.0, Math.sqrt Math.max 0, (6000 - y) / 5
+
   can-follow-path: (z, y, vy, path) ->
     works = true
-    for j til 1000 by 50
-      loop-z = z + j * ZSPEED
-      if y + vy * j + 0.5 * MAX_UP_ACCEL * j * j <= BUFFER + @terrain-gen.get-y (path.x loop-z), -loop-z
+    loop-z = z
+    for j til 1000
+      loop-y = y + vy * j + 0.5 * MAX_UP_ACCEL * j * j
+      if j % 25 == 0 && loop-y <= BUFFER + @terrain-gen.get-y (path.x loop-z), -loop-z
         return false
+      loop-z += @vz-of-y loop-y
     return true
 
   tick: ->
@@ -63,10 +68,10 @@ export class Pilot
     y = @camera.position.y
 
     new-path = new Path z, (@path.x z), @path.dx z
-    # Score path by how low it keeps the camera over the next 100 ticks
+    # Score path by how low the terrain is over the next ~250 ticks
     cur-score = 0
     new-score = 0
-    for i til 1000
+    for i til 250
       trial-z = z + i * ZSPEED
       cur-score = Math.max cur-score, @terrain-gen.get-y (@path.x trial-z), trial-z
       new-score = Math.max new-score, @terrain-gen.get-y (new-path.x trial-z), trial-z
@@ -77,7 +82,7 @@ export class Pilot
     for test-accel from MAX_UP_ACCEL to -MAX_DOWN_ACCEL by -(MAX_DOWN_ACCEL + MAX_UP_ACCEL) / 4.0
       if test-accel >= working-accel
         continue
-      next-z = z + ZSPEED
+      next-z = z + @vz-of-y y
       next-y = y + @vy + 0.5 * test-accel
       next-vy = @vy + test-accel
       if @can-follow-path next-z, next-y, next-vy, @path
@@ -85,7 +90,7 @@ export class Pilot
       else
         break
 
-    @camera.position.z -= ZSPEED
+    @camera.position.z -= @vz-of-y y
     @camera.position.x = @path.x -@camera.position.z
     @camera.position.y += @vy + 0.5 * working-accel
     @vy += working-accel
