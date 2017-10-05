@@ -49,6 +49,11 @@ generate-pine-tree = ->
     (tree1-trunk-material))
     ..position.y = trunk-height / 2)
     ..castShadow = true
+
+  if Math.random! < 0.03
+    # 3% of trees are stumps
+    return tree
+
   tree.add (( new THREE.Mesh tree1-leaf-geometry1,
     (tree1-leaf-material))
     ..position.y = trunk-height + leaf-height / 2 + (leaf-height - leaf-overlap) * 0
